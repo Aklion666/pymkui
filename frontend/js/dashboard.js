@@ -12,23 +12,45 @@ async function loadDashboard() {
             });
             document.getElementById('viewerCount').textContent = totalViewers;
             document.getElementById('trafficCount').textContent = '计算中...';
-            
-            const apiResult = await Api.getApiList();
-            if (apiResult.code === 0) {
-                document.getElementById('apiVersion').textContent = 'v1.0';
-            }
         } else {
             document.getElementById('streamCount').textContent = '0';
             document.getElementById('viewerCount').textContent = '0';
             document.getElementById('trafficCount').textContent = '-';
         }
         
+        await loadVersion();
         await loadStatistic();
         await loadThreadsLoad();
         await loadWorkThreadsLoad();
         loadSystemResources();
     } catch (error) {
         showToast('加载数据失败: ' + error.message, 'error');
+    }
+}
+
+async function loadVersion() {
+    try {
+        const result = await Api.getVersion();
+        if (result.code === 0) {
+            const data = result.data || {};
+            
+            const branchName = data.branchName || '-';
+            const buildTime = data.buildTime || '-';
+            const commitHash = data.commitHash || '-';
+            
+            document.getElementById('versionInfo').textContent = `服务版本: ${commitHash}`;
+            document.getElementById('branchInfo').textContent = `分支: ${branchName}`;
+            document.getElementById('buildInfo').textContent = `编译时间: ${buildTime}`;
+        } else {
+            document.getElementById('versionInfo').textContent = '服务版本: -';
+            document.getElementById('branchInfo').textContent = '分支: -';
+            document.getElementById('buildInfo').textContent = '编译时间: -';
+        }
+    } catch (error) {
+        console.error('获取版本信息失败:', error);
+        document.getElementById('versionInfo').textContent = '服务版本: -';
+        document.getElementById('branchInfo').textContent = '分支: -';
+        document.getElementById('buildInfo').textContent = '编译时间: -';
     }
 }
 

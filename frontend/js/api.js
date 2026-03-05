@@ -313,6 +313,10 @@ const Api = {
         return this.request('/index/api/getWorkThreadsLoad');
     },
 
+    async getVersion() {
+        return this.request('/index/api/version');
+    },
+
     async getServerConfig() {
         return this.request('/index/api/getServerConfig');
     },
