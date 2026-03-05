@@ -91,6 +91,11 @@ function drawStatisticChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 20
+                }
+            },
             scales: {
                 y: {
                     beginAtZero: true,
@@ -147,12 +152,16 @@ async function loadWorkThreadsLoad() {
 function drawThreadsLoadChart(data) {
     const ctx = document.getElementById('threadsLoadChart').getContext('2d');
     
-    const labels = data.map((item, index) => index + 1);
+    const labels = data.map(item => item.name || '未命名');
     const loadData = data.map(item => (item.load || 0));
     const delayData = data.map(item => item.delay || 0);
+    const fdCountData = data.map(item => item.fd_count || 0);
     
     const maxDelay = Math.max(...delayData, 100);
     const yMax = maxDelay > 100 ? maxDelay * 1.2 : 100;
+    
+    const maxFdCount = Math.max(...fdCountData, 1);
+    const fdCountScaled = fdCountData.map(val => (val / maxFdCount) * 90);
     
     if (window.threadsLoadChart && typeof window.threadsLoadChart.destroy === 'function') {
         window.threadsLoadChart.destroy();
@@ -180,12 +189,26 @@ function drawThreadsLoadChart(data) {
                     borderColor: 'rgba(255, 206, 86, 1)',
                     borderWidth: 2,
                     yAxisID: 'y'
+                },
+                {
+                    label: 'FD数量',
+                    data: fdCountScaled,
+                    type: 'bar',
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 30
+                }
+            },
             scales: {
                 y: {
                     type: 'linear',
@@ -218,7 +241,7 @@ function drawThreadsLoadChart(data) {
                         color: 'rgba(255, 255, 255, 0.8)'
                     },
                     beginAtZero: true,
-                    max: 100,
+                    max: 110,
                     grid: {
                         drawOnChartArea: false
                     },
@@ -234,7 +257,8 @@ function drawThreadsLoadChart(data) {
                         color: 'rgba(255, 255, 255, 0.1)'
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.8)'
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        rotation: 45
                     }
                 }
             },
@@ -244,6 +268,36 @@ function drawThreadsLoadChart(data) {
                     labels: {
                         color: 'rgba(255, 255, 255, 0.8)'
                     }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.dataset.label === 'FD数量') {
+                                return 'FD数量: ' + fdCountData[context.dataIndex];
+                            }
+                            return context.dataset.label + ': ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            animation: {
+                onComplete: function() {
+                    const chart = this;
+                    const ctx = chart.ctx;
+                    
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        if (dataset.label === 'FD数量') {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach(function(bar, index) {
+                                const data = fdCountData[index];
+                                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                                ctx.font = '10px Inter, system-ui, sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, bar.x, bar.y - 5);
+                            });
+                        }
+                    });
                 }
             }
         }
@@ -253,12 +307,16 @@ function drawThreadsLoadChart(data) {
 function drawWorkThreadsLoadChart(data) {
     const ctx = document.getElementById('workThreadsLoadChart').getContext('2d');
     
-    const labels = data.map((item, index) => index + 1);
+    const labels = data.map(item => item.name || '未命名');
     const loadData = data.map(item => (item.load || 0));
     const delayData = data.map(item => item.delay || 0);
+    const fdCountData = data.map(item => item.fd_count || 0);
     
     const maxDelay = Math.max(...delayData, 100);
     const yMax = maxDelay > 100 ? maxDelay * 1.2 : 100;
+    
+    const maxFdCount = Math.max(...fdCountData, 1);
+    const fdCountScaled = fdCountData.map(val => (val / maxFdCount) * 90);
     
     if (window.workThreadsLoadChart && typeof window.workThreadsLoadChart.destroy === 'function') {
         window.workThreadsLoadChart.destroy();
@@ -286,12 +344,26 @@ function drawWorkThreadsLoadChart(data) {
                     borderColor: 'rgba(255, 206, 86, 1)',
                     borderWidth: 2,
                     yAxisID: 'y'
+                },
+                {
+                    label: 'FD数量',
+                    data: fdCountScaled,
+                    type: 'bar',
+                    backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    yAxisID: 'y1'
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 30
+                }
+            },
             scales: {
                 y: {
                     type: 'linear',
@@ -324,7 +396,7 @@ function drawWorkThreadsLoadChart(data) {
                         color: 'rgba(255, 255, 255, 0.8)'
                     },
                     beginAtZero: true,
-                    max: 100,
+                    max: 110,
                     grid: {
                         drawOnChartArea: false
                     },
@@ -340,7 +412,8 @@ function drawWorkThreadsLoadChart(data) {
                         color: 'rgba(255, 255, 255, 0.1)'
                     },
                     ticks: {
-                        color: 'rgba(255, 255, 255, 0.8)'
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        rotation: 45
                     }
                 }
             },
@@ -350,6 +423,36 @@ function drawWorkThreadsLoadChart(data) {
                     labels: {
                         color: 'rgba(255, 255, 255, 0.8)'
                     }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.dataset.label === 'FD数量') {
+                                return 'FD数量: ' + fdCountData[context.dataIndex];
+                            }
+                            return context.dataset.label + ': ' + context.parsed.y;
+                        }
+                    }
+                }
+            },
+            animation: {
+                onComplete: function() {
+                    const chart = this;
+                    const ctx = chart.ctx;
+                    
+                    chart.data.datasets.forEach(function(dataset, i) {
+                        if (dataset.label === 'FD数量') {
+                            const meta = chart.getDatasetMeta(i);
+                            meta.data.forEach(function(bar, index) {
+                                const data = fdCountData[index];
+                                ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                                ctx.font = '10px Inter, system-ui, sans-serif';
+                                ctx.textAlign = 'center';
+                                ctx.textBaseline = 'bottom';
+                                ctx.fillText(data, bar.x, bar.y - 5);
+                            });
+                        }
+                    });
                 }
             }
         }
