@@ -507,12 +507,12 @@ function drawWorkThreadsLoadChart(data) {
 }
 
 // 存储历史数据
-let cpuHistory = Array(7).fill(0);
-let memoryHistory = Array(7).fill(0);
-let diskHistory = Array(7).fill(0);
-let networkSentHistory = Array(7).fill(0);
-let networkRecvHistory = Array(7).fill(0);
-let timeLabels = Array(7).fill('');
+let cpuHistory = Array(30).fill(0);
+let memoryHistory = Array(30).fill(0);
+let diskHistory = Array(30).fill(0);
+let networkSentHistory = Array(30).fill(0);
+let networkRecvHistory = Array(30).fill(0);
+let timeLabels = Array(30).fill('');
 
 // 格式化字节数单位
 function formatBytes(bytes) {
