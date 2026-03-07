@@ -339,7 +339,7 @@ const Api = {
     },
 
     async closeStream(schema, vhost, app, stream) {
-        return this.request('/index/api/close_stream', { body: { schema, vhost, app, stream } });
+        return this.request('/index/api/close_stream', { body: { schema, vhost, app, stream, force: 1 } });
     },
 
     clearAuth() {

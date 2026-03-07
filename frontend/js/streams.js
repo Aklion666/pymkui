@@ -5,7 +5,7 @@ async function loadStreams() {
     
     tbody.innerHTML = `
         <tr>
-            <td colspan="7" class="p-10 text-center">
+            <td colspan="8" class="p-10 text-center">
                 <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mx-auto mb-4"></div>
                 <span class="text-white/60 font-semibold">加载中...</span>
             </td>
@@ -25,7 +25,7 @@ async function loadStreams() {
             if (data.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="7" class="p-10 text-center text-white/60 font-semibold">
+                        <td colspan="8" class="p-10 text-center text-white/60 font-semibold">
                             暂无媒体流
                         </td>
                     </tr>
@@ -44,6 +44,16 @@ async function loadStreams() {
                 const aliveTime = formatAliveTime(aliveSecond);
                 const bitrate = formatBitrate(bytesSpeed);
                 
+                // 处理轨道信息
+                let tracksInfo = '-';
+                if (stream.tracks && stream.tracks.length > 0) {
+                    const trackCodes = stream.tracks.map(track => {
+                        const codec = track.codec_id_name || track.codec_name || '-';
+                        return track.codec_type === 0 ? `视频: ${codec}` : `音频: ${codec}`;
+                    });
+                    tracksInfo = trackCodes.join('<br>');
+                }
+                
                 html += `
                     <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                         <td class="p-4 text-white">${stream.app || '-'}</td>
@@ -52,6 +62,7 @@ async function loadStreams() {
                         <td class="p-4 text-white">${readerCount}</td>
                         <td class="p-4 text-white">${aliveTime}</td>
                         <td class="p-4 text-white">${bitrate}</td>
+                        <td class="p-4 text-white" style="white-space: pre-line;">${tracksInfo}</td>
                         <td class="p-4">
                             <button class="bg-gradient-primary text-white px-3 py-1 rounded-lg text-sm font-semibold hover:shadow-neon transition-colors mr-2" onclick="playStream('${stream.app}', '${stream.stream}', '${stream.schema}')">播放</button>
                             <button class="bg-gradient-accent text-white px-3 py-1 rounded-lg text-sm font-semibold hover:shadow-neon transition-colors mr-2" onclick="showStreamInfo('${stream.schema}', '${vhost}', '${stream.app}', '${stream.stream}')">查看</button>
@@ -65,7 +76,7 @@ async function loadStreams() {
         } else {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="7" class="p-10 text-center text-white/60 font-semibold">
+                    <td colspan="8" class="p-10 text-center text-white/60 font-semibold">
                         加载失败: ${result.msg || '未知错误'}
                     </td>
                 </tr>
@@ -74,7 +85,7 @@ async function loadStreams() {
     } catch (error) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="p-10 text-center text-white/60 font-semibold">
+                <td colspan="8" class="p-10 text-center text-white/60 font-semibold">
                     网络错误: ${error.message}
                 </td>
             </tr>

@@ -61,7 +61,7 @@ def on_publish(type: str, args: dict, invoker, sender: dict) -> bool:
     mk_logger.log_info(f"type: {type}, args: {args}, sender: {sender}")
     # opt 控制转协议，请参考配置文件[protocol]下字段
     opt = {
-        "enable_rtmp": "1"
+        #"enable_rtmp": "1"
     }
     # 响应推流鉴权结果
     mk_loader.publish_auth_invoker_do(invoker, "", opt)
@@ -121,7 +121,7 @@ def on_record_ts(info: dict) -> bool:
 def on_stream_none_reader(sender: mk_loader.MediaSource) -> bool:
     mk_logger.log_info(f"on_stream_none_reader: {sender.getUrl()}")
     # 无人观看自动关闭
-    sender.close(False)
+    # sender.close(False)
     # 返回True代表此事件被python拦截
     return True
 
