@@ -139,11 +139,18 @@ def on_send_rtp_stopped(sender: mk_loader.MultiMediaSourceMuxer, ssrc: str, ex: 
     # 返回True代表此事件被python拦截
     return True
 
-def on_http_access(parser: mk_loader.Parser, path: str, is_dir: bool, invoker, sender: dict) -> bool:
-    mk_logger.log_info(f"on_http_access, path: {path}, is_dir: {is_dir}, sender: {sender}, http header: {parser.getHeader()}")
-    # 允许访问该文件/目录1小时, cookie有效期内，访问该目录下的文件或路径不再触发该事件
+def on_http_access(parser: mk_loader.Parser, path: str, file_path: str, is_dir: bool, invoker, sender: dict) -> bool:
+    # 获取frontend目录的绝对路径
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    frontend_path = os.path.abspath(os.path.join(current_dir, '..', 'frontend'))
+    # 检查请求路径是否在frontend目录下
+    if not file_path.startswith(frontend_path):
+        mk_logger.log_warn(f"Access denied: path '{file_path}' is outside frontend directory")
+        mk_loader.http_access_invoker_do(invoker, "Access denied by pymkui", path, 60 * 60)
+        return True
+    
+    # 允许访问
     mk_loader.http_access_invoker_do(invoker, "", path, 60 * 60)
-    # 返回True代表此事件被python拦截
     return True
 
 def on_rtp_server_timeout(local_port: int, tuple: mk_loader.MediaTuple, tcp_mode: int, re_use_port: bool, ssrc: int) -> bool:
